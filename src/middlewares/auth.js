@@ -2,7 +2,7 @@ import jwt from 'jsonwebtoken'
 
 export function auth(req, res, next) {
     const header = req.headers.authorization
-    if (!header || !header.startsWith("Bearer")) {
+    if (!header || !header.startsWith("Bearer ")) {
         return res.status(401).json({ message: 'Unauthorized' })
     }
 
@@ -12,7 +12,8 @@ export function auth(req, res, next) {
         const payload = jwt.verify(token, process.env.JWT_SECRET)
         req.user = payload
         next()
-    } catch {
+    } catch (err) {
         res.status(401).json({ message: 'Unauthorized' })
+        console.log(err)
     }
 }
