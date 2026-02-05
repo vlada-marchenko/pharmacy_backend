@@ -1,6 +1,6 @@
 import bcrypt from 'bcryptjs'
-import User from '../src/models/User'
-import httpError from '../src/utils/httpError'
+import User from '../models/User.js'
+import { httpError } from '../utils/httpError.js'
 import jwt from 'jsonwebtoken'
 
 export async function register({ name, email, phone, password }) {
