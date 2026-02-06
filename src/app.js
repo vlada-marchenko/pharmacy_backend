@@ -2,7 +2,8 @@ import express from 'express';
 import cors from 'cors'
 import { errorHandler } from './middlewares/errorHandler.js';
 import userRoutes from './routes/user.routes.js'
-import productRoutes from './routes/product.routes.js'
+// import productRoutes from './routes/product.routes.js'
+import shopRouter from './routes/shop.routes.js'
 
 export const app = express()
 
@@ -15,6 +16,8 @@ app.get('/', (req, res) => {
 
 app.use('/api/user', userRoutes)
 
-app.use('/api/products', productRoutes)
+app.use('/api/shop', shopRouter)
+
+// app.use('/api/products', productRoutes)
 
 app.use(errorHandler)
