@@ -2,8 +2,9 @@ import express from 'express';
 import cors from 'cors'
 import { errorHandler } from './middlewares/errorHandler.js';
 import userRoutes from './routes/user.routes.js'
-// import productRoutes from './routes/product.routes.js'
 import shopRouter from './routes/shop.routes.js'
+import productRouter from './routes/product.routes.js'
+import medicineRouter from './routes/medicine.routes.js'
 
 export const app = express()
 
@@ -18,6 +19,8 @@ app.use('/api/user', userRoutes)
 
 app.use('/api/shop', shopRouter)
 
-// app.use('/api/products', productRoutes)
+app.use('/api/shop', productRouter)
+
+app.use('/api/shop', medicineRouter)
 
 app.use(errorHandler)
