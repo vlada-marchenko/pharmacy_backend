@@ -1,4 +1,4 @@
-import Medicine from "../models/Medicine";
+import Medicine from "../models/Medicine.js";
 
 export async function listMedicines(req, res, next) {
     try {
@@ -16,6 +16,8 @@ export async function getMedicineById(req, res, next) {
         
         const medicine = await Medicine.findById(medicineId).lean()
         if (!medicine) return res.status(404).json({ message: 'Medicine not found' })
+
+        medicine.price = medicine.price ? Number(medicine.price) : null
 
         res.json(medicine)
     } catch (err) {

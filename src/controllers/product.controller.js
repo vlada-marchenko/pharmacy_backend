@@ -1,21 +1,19 @@
 import Product from "../models/Product.js";
-import Medicine from "../models/Medicine.js";
-import trim from "string.prototype.trim/implementation.js";
 
 export async function listProducts(req, res, next) {
   try {
-    const { shopId } = req.query;
+    const { shopId } = req.params;
 
-    const items = (await Product.find({ shopId }).populate("medicineId"))
-      .toSorted({ createdAt: -1 })
+    const items = await Product.find({ shopId }).populate("medicineId")
+      .sort({ createdAt: -1 })
       .lean();
 
     const products = items.map((i) => ({
       id: i._id,
-      medicineId: i.medicineId?._id,
-      name: i.medicineId?.name,
-      photo: i.medicineId?.photo,
-      category: i.medicineId?.category,
+      medicineId: i.medicineId?._id || null,
+      name: i.medicineId?.name ?? i.name,
+      photo: i.medicineId?.photo ?? i.photo,
+      category: i.medicineId?.category ?? i.category,
       price: i.price,
     }));
 
@@ -31,31 +29,26 @@ export async function addProduct(req, res, next) {
 
     const { medicineId, name, photo, category, price } = req.body;
 
-    let medId = medicineId;
-
-    if (!medId) {
-      if (!name || !photo || !category) {
-        return res.status(400).json({ message: "Missing required fiels" });
-      }
-
-      const medicine = await Medicine.findOneAndUpdate(
-        { name: name.trim(), category: category.trim() },
-        { $swtOnInsert: { name: trim(), category: category.trim(), photo } },
-        { new: true, upsert: true },
-      ).lean();
-
-      medId = medicine._id;
-    }
-
-    if (price === undefined) {
+    if (medicineId) {
+            if (price === undefined) {
       return res
         .status(400)
         .json({ message: "Price is required to add medicine to the shop" });
     }
+        const created = await Product.create({ shopId, medicineId, price: Number(price) })
+        return res.status(201).json({ id: created._id })
+    }
+
+    if (!name || !photo || !category || price === undefined) {
+        return res.status(400).json({ message: 'Missing required fields'})
+    }
+
 
     const created = await Product.create({
       shopId,
-      medicineId: medId,
+      name: name.trim(),
+      photo,
+      category: category.trim(),
       price: Number(price),
     });
 
@@ -79,12 +72,12 @@ export async function getProductById(req, res, next) {
     if (!item) return res.status(404).json({ message: 'Product not found' })
 
     res.json({
-        id: item._id,
-        medicineId: item.medicineId?._id,
-        name: item.medicineId?.name,
-        photo: item.medicineId?.photo,
-        category: item.medicineId?.category,
-        price: item.price
+      id: item._id,
+      medicineId: item.medicineId?._id || null,
+      name: item.medicineId?.name ?? item.name,
+      photo: item.medicineId?.photo ?? item.photo,
+      category: item.medicineId?.category ?? item.category,
+      price: item.price,
     })
   } catch (err) {
     next(err);
@@ -95,13 +88,12 @@ export async function getProductById(req, res, next) {
 export async function editProduct(req, res, next) {
     try {
         const { shopId, productId } = req.params
-        const { price, category } = req.body
+        const { price } = req.body
 
         const update = {}
         if (price !== undefined) update.price = Number(price)
-        if (category !== undefined) update.category = category
         
-        const updated = await Product.findByIdAndUpdate(
+        const updated = await Product.findOneAndUpdate(
             { _id: productId, shopId },
             update,
             { new: true }

@@ -21,6 +21,6 @@ app.use('/api/shop', shopRouter)
 
 app.use('/api/shop', productRouter)
 
-app.use('/api/shop', medicineRouter)
+app.use('/api', medicineRouter)
 
 app.use(errorHandler)
