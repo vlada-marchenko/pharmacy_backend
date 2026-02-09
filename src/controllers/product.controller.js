@@ -1,3 +1,4 @@
+import Medicine from "../models/Medicine.js";
 import Product from "../models/Product.js";
 
 export async function listProducts(req, res, next) {
@@ -35,7 +36,11 @@ export async function addProduct(req, res, next) {
         .status(400)
         .json({ message: "Price is required to add medicine to the shop" });
     }
-        const created = await Product.create({ shopId, medicineId, price: Number(price) })
+
+       const med = await Medicine.findById(medicineId).lean()
+       if (!med) return res.status(404).json({ message: 'Medicine not found' })
+
+        const created = await Product.create({ shopId, medicineId, price: Number(price), name: med.name, photo: med.photo, category: med.category} )
         return res.status(201).json({ id: created._id })
     }
 

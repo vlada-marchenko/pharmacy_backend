@@ -5,6 +5,7 @@ import userRoutes from './routes/user.routes.js'
 import shopRouter from './routes/shop.routes.js'
 import productRouter from './routes/product.routes.js'
 import medicineRouter from './routes/medicine.routes.js'
+import statsRouter from './routes/stats.routes.js'
 
 export const app = express()
 
@@ -22,5 +23,7 @@ app.use('/api/shop', shopRouter)
 app.use('/api/shop', productRouter)
 
 app.use('/api', medicineRouter)
+
+app.use('/api', statsRouter)
 
 app.use(errorHandler)

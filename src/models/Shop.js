@@ -14,9 +14,9 @@ const shopSchema = new mongoose.Schema({
 
     hasDeliverySystem: { type: Boolean, default: false}
 },
-{ timeStamps: true }
+{ timestamps: true }
 )
 
-shopSchema.index({ ownerId: 1, showName: 1 }, { unique: true })
+shopSchema.index({ ownerId: 1, shopName: 1 }, { unique: true })
 
 export default mongoose.model("Shop", shopSchema)
