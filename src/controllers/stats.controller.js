@@ -22,7 +22,7 @@ export async function getStatistics(req, res, next) {
         ] = await Promise.all([
             Customers.countDocuments(customersFilter),
             Product.countDocuments({ shopId }),
-            Customers.find(customersFilter).select('name email spent bought_products').populate({ path: 'bought_products.productId', select: 'name price photo category' }),
+            Customers.find(customersFilter).select('name email spent bought_products').populate({ path: 'bought_products.productId', select: 'name price photo category' }).sort({ createdAt: -1 }).limit(5),
             Transaction.find(transactionsFilter).select('name amount type')
         ])
 
