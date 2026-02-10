@@ -7,6 +7,12 @@ export async function getStatistics(req, res, next) {
         const { shopId } = req.params
 
         if (!shopId) return res.status(400).json({ message: 'Mising shopId'})
+
+        const hasShopCustomers = await Customers.exists({ shopId })
+        const hasShopTransactions = await Transaction.exists({ shopId })
+
+        const customersFilter = hasShopCustomers ? { shopId } : {}
+        const transactionsFilter = hasShopTransactions ? { shopId } : {}
         
         const [
             totalCustomers,
@@ -14,10 +20,10 @@ export async function getStatistics(req, res, next) {
             customers,
             transactions
         ] = await Promise.all([
-            Customers.countDocuments({ shopId }),
+            Customers.countDocuments(customersFilter),
             Product.countDocuments({ shopId }),
-            Customers.find({ shopId }).select('name email spent bought_products').populate({ path: 'bought_products.productId', select: 'name price category' }),
-            Transaction.find({ shopId }).select('name amount type')
+            Customers.find(customersFilter).select('name email spent bought_products').populate({ path: 'bought_products.productId', select: 'name price photo category' }),
+            Transaction.find(transactionsFilter).select('name amount type')
         ])
 
         const transactionsByType = {
@@ -47,11 +53,15 @@ export async function getStatistics(req, res, next) {
 
 export async function getClientGoods(req, res, next) {
     try {
-         const { shopId } = req.params
-        const { clientId } = req.params
+         const { shopId, clientId } = req.params
+
         if (!shopId) return res.status(400).json({ message: 'Missing shopId' })
 
-        const customer = await Customers.findOne({ _id: clientId, shopId }).select('name email spent bought_products').populate({ path: 'bought_products.productId', select: 'name price category' })
+        let customer = await Customers.findOne({ _id: clientId, shopId }).select('name email spent bought_products').populate({ path: 'bought_products.productId', select: 'name price photo category' })
+
+        if (!customer) {
+            customer = await Customers.findById(clientId).select('name email spent bought_products').populate({ path: 'bought_products.productId', select: 'name price photo category'})
+        }
 
         if (!customer) return res.status(404).json({ message: 'Client not found '})
 
