@@ -2,6 +2,7 @@ import bcrypt from 'bcryptjs'
 import User from '../models/User.js'
 import { httpError } from '../utils/httpError.js'
 import jwt from 'jsonwebtoken'
+import Shop from '../models/Shop.js'
 
 export async function register({ name, email, phone, password }) {
     const existing = await User.findOne({email})
@@ -25,6 +26,8 @@ export async function login({ email, password }) {
 
     const ok = await bcrypt.compare(password, user.passwordHash)
     if (!ok) throw httpError(401, 'Invalid email or password')
+
+    const shop = await Shop.findOne({ owner: user.id })
     
     const token = jwt.sign(
         { userId: user.id },
@@ -35,6 +38,6 @@ export async function login({ email, password }) {
 
     return {
         token, 
-        user: { id: user.id, email: user.email, name: user.name }
+        user: { id: user.id, email: user.email, name: user.name, shopId: shop ? shop.id : null }
     }
 }
