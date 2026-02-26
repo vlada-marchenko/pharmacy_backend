@@ -11,8 +11,4 @@ const productSchema = new mongoose.Schema({
     category: { type: String, trim: true, index: true}
 }, { timestamps: true })
 
-productSchema.index({ shopId: 1, medicineId: 1 },  
-    { unique: true, partialFilterExpression: { medicineId: { $type: 'objectId'}}}
-)
-
 export default mongoose.model('Product', productSchema)
