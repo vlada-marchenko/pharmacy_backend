@@ -5,14 +5,13 @@ import Product from '../models/Product.js'
 export async function getStatistics(req, res, next) {
     try {
         const { shopId } = req.params
-
         if (!shopId) return res.status(400).json({ message: 'Mising shopId'})
 
-        const hasShopCustomers = await Customers.exists({ shopId })
-        const hasShopTransactions = await Transaction.exists({ shopId })
+        // const hasShopCustomers = await Customers.exists({ shopId })
+        // const hasShopTransactions = await Transaction.exists({ shopId })
 
-        const customersFilter = hasShopCustomers ? { shopId } : {}
-        const transactionsFilter = hasShopTransactions ? { shopId } : {}
+        // const customersFilter = hasShopCustomers ? { shopId } : {}
+        // const transactionsFilter = hasShopTransactions ? { shopId } : {}
         
         const [
             totalCustomers,
@@ -20,10 +19,10 @@ export async function getStatistics(req, res, next) {
             customers,
             transactions
         ] = await Promise.all([
-            Customers.countDocuments(customersFilter),
+            Customers.countDocuments({}),
             Product.countDocuments({ shopId }),
-            Customers.find(customersFilter).select('name email spent bought_products').populate({ path: 'bought_products.productId', select: 'name price photo category' }).sort({ createdAt: -1 }).limit(5),
-            Transaction.find(transactionsFilter).select('name amount type')
+            Customers.find({}).select('name email spent bought_products').populate({ path: 'bought_products.productId', select: 'name price photo category' }).sort({ createdAt: -1 }).limit(5),
+            Transaction.find({ shopId }).select('name amount type')
         ])
 
         const transactionsByType = {
