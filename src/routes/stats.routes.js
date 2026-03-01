@@ -4,7 +4,7 @@ import { getStatistics, getClientGoods } from '../controllers/stats.controller.j
 
 const router = Router()
 
-router.get('/shop/:shopId/statistics', auth, getStatistics)
+router.get('/shop/:shopId/statistics', getStatistics)
 router.get('/shop/:shopId/statistics/:clientId/goods', auth, getClientGoods)
 
 export default router
