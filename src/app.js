@@ -28,6 +28,6 @@ app.use('/api/shop', productRouter)
 
 app.use('/api', medicineRouter)
 
-app.use('/api', statsRouter)
+app.use('/api/shop', statsRouter)
 
 app.use(errorHandler)
