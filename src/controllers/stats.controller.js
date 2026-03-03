@@ -22,7 +22,7 @@ export async function getStatistics(req, res, next) {
             Customers.countDocuments({}),
             Product.countDocuments({ shopId }),
             Customers.find({}).select('name email spent bought_products').populate({ path: 'bought_products.productId', select: 'name price photo category' }).sort({ createdAt: -1 }).limit(5),
-            Transaction.find({ shopId }).select('name amount type')
+            Transaction.find({}).select('name amount type').sort({ createdAt: -1 }).limit(10)
         ])
 
         const transactionsByType = {
