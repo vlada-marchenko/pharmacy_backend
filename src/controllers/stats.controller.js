@@ -6,12 +6,6 @@ export async function getStatistics(req, res, next) {
     try {
         const { shopId } = req.params
         if (!shopId) return res.status(400).json({ message: 'Mising shopId'})
-
-        // const hasShopCustomers = await Customers.exists({ shopId })
-        // const hasShopTransactions = await Transaction.exists({ shopId })
-
-        // const customersFilter = hasShopCustomers ? { shopId } : {}
-        // const transactionsFilter = hasShopTransactions ? { shopId } : {}
         
         const [
             totalCustomers,
@@ -22,27 +16,21 @@ export async function getStatistics(req, res, next) {
             Customers.countDocuments({}),
             Product.countDocuments({ shopId }),
             Customers.find({}).select('name email spent bought_products').populate({ path: 'bought_products.productId', select: 'name price photo category' }).sort({ createdAt: -1 }).limit(5),
-            Transaction.find({}).select('name amount type').sort({ createdAt: -1 }).limit(10)
+            Transaction.find({}).select('name amount type').sort({ createdAt: -1 }).limit(12)
         ])
 
         const transactionsByType = {
-            Income: [],
-            Expense: [],
-            Error: [], 
-            Unknown: []
+            Income: transactions.filter(t => t.type === 'Income'),
+            Expense: transactions.filter(t => t.type === 'Expense'),
+            Error: transactions.filter(t => t.type === 'Error'),
+            Unknown: transactions.filter(t => !['Income', 'Expense', 'Error'].includes(t.type))
         }
-
-        for (const t of transactions) {
-            if (t.type === 'Income') transactionsByType.Income.push(t)
-            else if (t.type === 'Expense') transactionsByType.Expense.push(t)
-            else if (t.type === 'Error') transactionsByType.Error.push(t)
-            else transactionsByType.Unknown.push(t)
-        }
-
+        
         return res.json({
             totalCustomers,
             totalProducts,
             customers,
+            transactions,
             transactionsByType
         })
     } catch (err) {
