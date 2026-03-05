@@ -1,6 +1,6 @@
 import Shop from '../models/Shop.js'
 import mongoose from 'mongoose'
-
+import User from '../models/User.js';
 
 export async function createShop(req, res, next) {
     try {
@@ -33,6 +33,8 @@ export async function createShop(req, res, next) {
             zipPostal,
             hasDeliverySystem: Boolean(hasDeliverySystem)
         })
+
+        await User.findByIdAndUpdate(ownerId, { shopId: shop._id });
 
         return res.status(201).json(shop)
     } catch (err) {
