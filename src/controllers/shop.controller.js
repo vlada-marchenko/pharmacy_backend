@@ -36,7 +36,11 @@ export async function createShop(req, res, next) {
 
         await User.findByIdAndUpdate(ownerId, { shopId: shop._id });
 
-        return res.status(201).json(shop)
+        return res.status(201).json({
+      ...shop.toObject(),
+      shopId: shop._id.toString(),
+      _id: shop._id.toString(),
+    });
     } catch (err) {
         if (err?.code === 11000) {
             return res.status(409).json({ message: 'Shop with this name already exists for this user' })
