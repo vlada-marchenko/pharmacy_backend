@@ -13,10 +13,12 @@ export async function register({ name, email, phone, password }) {
         const user = await User.create({ name, email, phone, passwordHash })
 
         return {
-            id: user.id,
+            id: user.id.toString(),
+            _id: user._id.toString(),
             name: user.name,
             email: user.email,
-            phone: user.phone
+            phone: user.phone,
+            shopId: null
         }
 }
 
@@ -27,7 +29,7 @@ export async function login({ email, password }) {
     const ok = await bcrypt.compare(password, user.passwordHash)
     if (!ok) throw httpError(401, 'Invalid email or password')
 
-    const shop = await Shop.findOne({ owner: user.id })
+    const shopId = user.shopId ? user.shopId.toString() : null;
     
     const token = jwt.sign(
         { userId: user.id },
