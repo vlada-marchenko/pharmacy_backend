@@ -25,10 +25,9 @@ export async function register({ name, email, phone, password }) {
 export async function login({ email, password }) {
     const user = await User.findOne({ email })
     if (!user) throw httpError(401, 'Invalid email or password')
-
     const ok = await bcrypt.compare(password, user.passwordHash)
     if (!ok) throw httpError(401, 'Invalid email or password')
-
+    
     const shopId = user.shopId ? user.shopId.toString() : null;
     
     const token = jwt.sign(
@@ -37,9 +36,8 @@ export async function login({ email, password }) {
         process.env.JWT_SECRET,
         { expiresIn: '1h' }
     )
-
     return {
         token, 
-        user: { id: user.id, email: user.email, name: user.name, shopId: shop ? shop.id : null }
+        user: { id: user.id, email: user.email, name: user.name, shopId: shopId }  
     }
 }
